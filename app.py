@@ -4,17 +4,24 @@ import bcrypt
 from bson import ObjectId
 from dotenv import load_dotenv
 
-# --- TRUCO DE CONTROL PARA ONEDRIVE DESDE FLASK ---
-# Forzamos la lectura del .env justo donde está parado este archivo app.py
+
 base_dir = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(base_dir, '.env'))
 
-from database import db  # Importamos la conexión real
+from database import db  
 
-app = Flask(__name__)
+
+
+base_dir = os.path.abspath(os.path.dirname(__file__))
+template_dir = os.path.join(base_dir, 'templates')
+
+if not os.path.exists(template_dir) and os.path.exists(os.path.join(base_dir, 'Templates')):
+    template_dir = os.path.join(base_dir, 'Templates')
+
+app = Flask(__name__, template_folder=template_dir)
 app.secret_key = os.getenv("SECRET_KEY", "KattySecretBackup2026")
 
-# --- MIDDLEWARE DE PROTECCIÓN ---
+
 def login_required(f):
     from functools import wraps
     @wraps(f)
@@ -25,7 +32,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# --- RUTA 1: LOGIN (¡Recuperada!) ---
+# --- RUTA 1: LOGIN 
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
